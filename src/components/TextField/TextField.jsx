@@ -37,7 +37,7 @@ const TextField = ({
   const [ state, setState ] = useState({
     isFocused: false,
   });
-  const isEmptyValue = !value.length;
+  const isEmptyValue = value ? !value.length : true;
   const labelColor = useMemo(() => {
     let color;
     if (isError && !isEmptyValue) {
