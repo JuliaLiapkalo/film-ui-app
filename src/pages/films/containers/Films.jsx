@@ -9,10 +9,10 @@ import SuccessAlert from "../../../components/SnackBar";
 import {useNavigate} from "react-router-dom";
 import * as pages from "../../../constants/pages";
 import pageURLs from "../../../constants/pagesURLs";
-import AddIcon from '@mui/icons-material/Add';
 import useStyles from "../../classes/Classes";
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import TextField from "../../../components/TextField";
+import AddIconCustom from "../../../components/icons/AddIcon";
+import FilterAltIconCustom from "../../../components/icons/FilterAltIcon";
 
 function Films({setFilm, setFilmPageMode}) {
 
@@ -22,13 +22,16 @@ function Films({setFilm, setFilmPageMode}) {
     };
 
     const [films, setFilms] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(() => {
+        const storedPage = localStorage.getItem('currentPage');
+        return storedPage ? JSON.parse(storedPage) : 0;
+    });
     const [totalPages, setTotalPages] = useState(0);
     const [showDeleteButton, setShowDeleteButton] = useState(false);
     const [selectedEntity, setSelectedEntity] = useState(null);
     const [showSuccessMessage, setShowSuccessMessage] = useState('');
     const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-    const [failDeletingFilm, setFailDeletingFilm] = useState(false);
+    const [failDeletingFilm, setSuccessDeletingFilm] = useState(false);
     const [showFilter, setShowFilter] = useState(false);
     const [filmFilter, setFilmFilter] = useState(() => {
         const storedFilter = localStorage.getItem('filmFilter');
@@ -39,6 +42,7 @@ function Films({setFilm, setFilmPageMode}) {
             return filmFilterDto;
         }
     });
+
 
 
     const classes = useStyles();
@@ -63,6 +67,7 @@ function Films({setFilm, setFilmPageMode}) {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+        savePageToLocalStorage(page);
         getFilmsByPage(page, filmFilter);
     };
 
@@ -79,12 +84,13 @@ function Films({setFilm, setFilmPageMode}) {
     const handleDeleteFilm = async (entity) => {
         try {
             await filmsFunctions.fetchDeleteFilm(entity);
+            setSuccessDeletingFilm(true);
             setShowConfirmationDialog(false);
             setShowSuccessMessage(true);
             getFilmsByPage(currentPage);
         } catch (error) {
             console.error('Error:', error);
-            setFailDeletingFilm(true)
+            setSuccessDeletingFilm(false)
             films.removeItem(entity);
         }
     };
@@ -96,7 +102,7 @@ function Films({setFilm, setFilmPageMode}) {
     const closeConfirmationDialog = () => {
         setShowConfirmationDialog(false);
         setSelectedEntity(null);
-        setFailDeletingFilm(false);
+        setSuccessDeletingFilm(false);
     };
 
     const handleClickOnFilm = (film) => {
@@ -117,7 +123,7 @@ function Films({setFilm, setFilmPageMode}) {
     };
 
     const savePageToLocalStorage = (currentPage) => {
-        localStorage.setItem('page',currentPage);
+        localStorage.setItem('currentPage', JSON.stringify(currentPage));
     };
 
     const saveFilmFilterToLocalStorage = (filter) => {
@@ -129,11 +135,11 @@ function Films({setFilm, setFilmPageMode}) {
             <div>
                 <div>
                     <div className={classes.rightPosition}>
-                        <Button startIcon={<AddIcon/>}
+                        <Button startIcon={<AddIconCustom/>}
                                 onClick={() => handleAddFilm()}></Button>
                     </div>
                     <div className={classes.rightPosition}>
-                        <Button startIcon={<FilterAltIcon/>}
+                        <Button startIcon={<FilterAltIconCustom/>}
                                 onClick={() => setShowFilter(!showFilter)}></Button>
                         { isFilmFilterExist() &&
                             <Button onClick={() => handelRemoveFilter(currentPage)}>Remove Filter</Button>
@@ -152,7 +158,9 @@ function Films({setFilm, setFilmPageMode}) {
                                     name="name"
                                     onChange={(e) =>  setFilmFilter({ ...filmFilter, name: e.target.value})}
                                 />
-                                <Button onClick={() => getFilmsByPage(currentPage, filmFilter)}></Button>
+                                <Button onClick={() => getFilmsByPage(currentPage, filmFilter)}>
+                                   Find
+                                </Button>
                             </>
                         )}
                     </div>
@@ -182,7 +190,8 @@ function Films({setFilm, setFilmPageMode}) {
                             entity={selectedEntity}
                             isFail={failDeletingFilm}
                         />
-                        <SuccessAlert open={showSuccessMessage} handleClose={() => setShowSuccessMessage(false)}/>
+                        <SuccessAlert open={showSuccessMessage} handleClose={() => setShowSuccessMessage(false)}
+                                      isSuccess={failDeletingFilm}/>
                     </ul>
                 </div>
                 <div>

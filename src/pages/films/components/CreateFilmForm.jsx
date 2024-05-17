@@ -51,25 +51,22 @@ const FilmForm = () => {
     };
 
     const handleCreateFilm = async (entity) => {
-        setShowMessage(true);
         try {
             await films.fetchAddFilm(entity);
             setIsSuccess(true);
+            setShowMessage(true);
             navigate(filmsPage);
         } catch (error) {
             console.error('Error:', error);
             setIsSuccess(false);
+            setShowMessage(true);
         }
     };
 
     const handleSubmit = () => {
         if (validateForm(film)) {
             handleCreateFilm(film)
-
-        } else {
-
         }
-
     };
 
     return (
