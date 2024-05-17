@@ -10,7 +10,6 @@ import {
 } from 'react-redux';
 import { addAxiosInterceptors } from 'misc/requests';
 import * as pages from 'constants/pages';
-import AuthoritiesProvider from 'misc/providers/AuthoritiesProvider';
 import DefaultPage from 'pageProviders/Default';
 import Loading from 'components/Loading';
 import LoginPage from 'pageProviders/Login';
@@ -25,12 +24,16 @@ import Header from '../components/Header';
 import IntlProvider from '../components/IntlProvider';
 import MissedPage from '../components/MissedPage';
 import SearchParamsConfigurator from '../components/SearchParamsConfigurator';
+import Films from "../../pageProviders/Films";
+import FilmsDetails from "../../pageProviders/FilmDetails";
 
 function App() {
   const dispatch = useDispatch();
   const [state, setState] = useState({
     componentDidMount: false,
   });
+  const [film, setFilm] = useState(null)
+  const [filmPageMode, setFilmPageMode] = useState(false);
 
   const {
     errors,
@@ -53,8 +56,8 @@ function App() {
   }, []);
 
   return (
-    <UserProvider>
-      <AuthoritiesProvider>
+    // <UserProvider>
+    //   <AuthoritiesProvider>
         <ThemeProvider>
           <BrowserRouter>
             <SearchParamsConfigurator />
@@ -74,6 +77,15 @@ function App() {
                     <Route
                       element={<DefaultPage />}
                       path={`${pageURLs[pages.defaultPage]}`}
+                    />
+                    <Route
+                        element={<Films film={film} setFilm={setFilm} setFilmPageMode={setFilmPageMode}/>}
+                        path={`${pageURLs[pages.filmsPage]}`}
+                    />
+                    <Route
+                        element={<FilmsDetails film={film} setFilm={setFilm}
+                                               filmPageMode={filmPageMode} setFilmPageMode={setFilmPageMode} />}
+                        path={`${pageURLs[pages.filmDetailsPage]}`}
                     />
                     <Route
                       element={<SecretPage />}
@@ -116,7 +128,7 @@ function App() {
                     <Route
                       element={(
                         <MissedPage
-                          redirectPage={`${pageURLs[pages.defaultPage]}`}
+                          redirectPage={`${pageURLs[pages.filmsPage]}`}
                         />
                       )}
                       path="*"
@@ -127,8 +139,8 @@ function App() {
             )}
           </BrowserRouter>
         </ThemeProvider>
-      </AuthoritiesProvider>
-    </UserProvider>
+    //   </AuthoritiesProvider>
+    // </UserProvider>
   );
 }
 

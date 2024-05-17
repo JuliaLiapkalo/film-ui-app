@@ -132,12 +132,12 @@ function Header({
           <LeftNavBar />
           <Link
             to={{
-              pathname: `${pagesURLs[pages.defaultPage]}`,
+              pathname: `${pagesURLs[pages.filmsPage]}`,
             }}
           >
             <Hover
               light
-              selected={currentPage === pages.defaultPage}
+              selected={currentPage === pages.filmsPage}
             >
               <div className={classes.hover}>
                 <Logo compact={isMobile} />
